@@ -14,6 +14,7 @@ var MAX_LEAN = deg2rad(50)
 var MAX_LEAN_HEIGHT_OFFSET = 0.019
 
 var BACKWARDS_SPEED = 175
+var FORWARDS_SPEED = 175
 
 export var TURNING_SENSITIVITY: float = 0.02
 
@@ -50,11 +51,11 @@ func _process(delta):
 
 
 func _register_input(delta):
-	if (Input.is_action_pressed("forward")):
+	if (Input.is_action_pressed("jump")):
 		if (on_floor()):
 			power_up_jump(delta)
 			velocity = Vector3.ZERO
-	elif (Input.is_action_just_released("forward")):
+	elif (Input.is_action_just_released("jump")):
 		if (on_floor()):
 			_jump()
 	elif (on_floor()):
@@ -70,6 +71,9 @@ func _register_input(delta):
 	
 	if (Input.is_action_pressed("backward") and on_floor()):
 		_go_back(delta)
+	
+	if (Input.is_action_pressed("forward") and on_floor()):
+		_go_forward(delta)
 
 
 func _apply_gravity(vec: Vector3) -> Vector3:
@@ -122,6 +126,11 @@ func _go_back(delta):
 	velocity = velocity + (backward_vector * delta)
 	should_wobble = true
 
+func _go_forward(delta):
+	var forward_vector = (Vector3.FORWARD * FORWARDS_SPEED).rotated(Vector3.UP, rotation.y)
+	velocity = velocity + (forward_vector * delta)
+	should_wobble = true
+
 
 func on_floor():
 	if on_floor_cooldown.is_stopped():
@@ -136,4 +145,4 @@ func debug_draw():
 
 func _on_Area_body_entered(body):
 	translation = spawn.translation
-	rotation = Vector3.ZERO
+	rotation = spawn.rotation
