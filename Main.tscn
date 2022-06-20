@@ -1,0 +1,76 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://GrayGridMaterial.tres" type="Material" id=2]
+[ext_resource path="res://Area.gd" type="Script" id=3]
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 18.9792, 1.26016, 18.9677 )
+
+[node name="Main" type="Spatial"]
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -17.6556, 3.07334, 10.9192 )
+
+[node name="CSGCombiner" type="CSGCombiner" parent="."]
+use_collision = true
+
+[node name="Floor" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0 )
+use_collision = true
+width = 50.0
+height = 0.5
+depth = 50.0
+material = ExtResource( 2 )
+
+[node name="Box1" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.042, 0.937866, -4.21732 )
+material = ExtResource( 2 )
+
+[node name="CSGBox" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -18.75, 1, 0 )
+width = 12.5
+depth = 50.0
+material = ExtResource( 2 )
+
+[node name="CSGBox2" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 6.25, 1, 18.75 )
+width = 12.5
+depth = 37.5
+material = ExtResource( 2 )
+
+[node name="Box2" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.27422, 0.937866, 4.12936 )
+material = ExtResource( 2 )
+
+[node name="Box3" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.12437, 0.937866, -3.98489 )
+material = ExtResource( 2 )
+
+[node name="Box4" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 9.08893, 0.937866, -2.15006 )
+material = ExtResource( 2 )
+
+[node name="Box5" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14.3527, 0.937866, -10.8786 )
+material = ExtResource( 2 )
+
+[node name="Box6" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 18.7708, 0.937866, -16.8114 )
+material = ExtResource( 2 )
+
+[node name="Box7" type="CSGBox" parent="CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.937866, -12.7104 )
+material = ExtResource( 2 )
+
+[node name="Area" type="Area" parent="."]
+script = ExtResource( 3 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Area"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.96551, 0.269322, -6.26903 )
+shape = SubResource( 1 )
+
+[node name="Spawn" type="Position3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -16.7169, 3.40509, 17.1355 )
+
+[connection signal="body_entered" from="Area" to="Player" method="_on_Area_body_entered"]
