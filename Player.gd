@@ -17,6 +17,7 @@ var BACKWARDS_SPEED = 175
 var FORWARDS_SPEED = 175
 
 export var TURNING_SENSITIVITY: float = 0.02
+export var mouse_sensitivity: float = 0.03
 
 onready var wobbler: Wobbler = $Wobbler
 var should_wobble := false
@@ -24,21 +25,28 @@ var should_wobble := false
 onready var on_floor_detector: OnFloorDetector = $OnFloorDetector
 onready var on_floor_cooldown: Timer = $OnFloorDetectionCooldown
 
-onready var jump_power_ui = $HUD/Label
+onready var jump_power_ui = $Pivot/Camera/HUD/GameplayHud/Label
 
 onready var mesh := $Mesh
 
+onready var camera = $Pivot
+var tongue_collider = null
+
+onready var hud = $Pivot/Camera/HUD
+
 onready var spawn = get_parent().get_node("Spawn")
 
-func _ready():
-	pass # Replace with function body.
+onready var tongue_helper = $Mesh/TongueHelper
+
+var has_won := false
 
 
 func _process(delta):
 	debug_draw()
 	should_wobble = false
 	
-	_register_input(delta)
+	if not has_won:
+		_register_input(delta)
 		
 	if (not on_floor_detector.is_colliding()):
 		velocity = _apply_gravity(velocity)
@@ -74,6 +82,32 @@ func _register_input(delta):
 	
 	if (Input.is_action_pressed("forward") and on_floor()):
 		_go_forward(delta)
+	
+	if Input.is_action_pressed("aim") and velocity == Vector3.ZERO:
+		camera.aim()
+	else:
+		camera.deaim()
+	
+	if (Input.is_action_just_pressed("fire") and camera.is_aiming) or tongue_helper.is_drawing_tongue:
+		_launch_tongue()
+	else:
+		tongue_helper.end_tongue_launch()
+
+
+func _launch_tongue():
+	if not tongue_helper.has_hookpoint:
+		DebugDraw.set_text("setting is extending tongue to true", true)
+		
+		var hookpoint = camera.grapple_ray.default_end.global_transform.origin
+		if camera.grapple_ray.is_colliding():
+			tongue_collider = camera.grapple_ray.get_collider()
+			hookpoint = camera.grapple_ray.get_collision_point()
+		else:
+			tongue_collider = null
+			
+		tongue_helper.init_tongue_extension(hookpoint)
+	
+	tongue_helper.draw_tongue()
 
 
 func _apply_gravity(vec: Vector3) -> Vector3:
@@ -146,3 +180,26 @@ func debug_draw():
 func _on_Area_body_entered(body):
 	translation = spawn.translation
 	rotation = spawn.rotation
+
+
+func win():
+	has_won = true
+	hud.show_win()
+
+
+func _on_TongueHelper_ready_to_register_collision():
+	if tongue_collider:
+		if tongue_collider is Fly:
+			get_parent().remove_child(tongue_collider)
+			
+			for node in get_tree().get_nodes_in_group("Flys"):
+				if node.is_inside_tree():
+					return
+			
+			win()
+
+
+func _on_ReplayButton_pressed():
+	get_parent().reset()
+	hud.reset()
+	has_won = false

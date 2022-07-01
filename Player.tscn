@@ -1,9 +1,16 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://CeramicFrog.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Player.gd" type="Script" id=2]
 [ext_resource path="res://Wobbler.gd" type="Script" id=3]
 [ext_resource path="res://OnFloorDetector.gd" type="Script" id=4]
+[ext_resource path="res://Pivot.gd" type="Script" id=5]
+[ext_resource path="res://GrappleRayCast.gd" type="Script" id=6]
+[ext_resource path="res://TongueHelper.gd" type="Script" id=7]
+[ext_resource path="res://HUD.gd" type="Script" id=8]
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_color = Color( 1, 0.72549, 0.894118, 1 )
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 0.435973, 0.307127, 0.484897 )
@@ -11,44 +18,137 @@ extents = Vector3( 0.435973, 0.307127, 0.484897 )
 [node name="Player" type="KinematicBody"]
 script = ExtResource( 2 )
 
-[node name="Mesh" parent="." instance=ExtResource( 1 )]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
+[node name="Pivot" type="Spatial" parent="."]
+script = ExtResource( 5 )
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.318, 0 )
-shape = SubResource( 1 )
-
-[node name="Camera" type="Camera" parent="."]
+[node name="Camera" type="Camera" parent="Pivot"]
 transform = Transform( 1, 0, 0, 0, 0.985467, 0.169866, 0, -0.169866, 0.985467, 0, 1.65335, 2.37317 )
 
-[node name="HUD" type="Control" parent="."]
+[node name="HUD" type="Control" parent="Pivot/Camera"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 8 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TextureProgress" type="TextureProgress" parent="HUD"]
+[node name="GameplayHud" type="Control" parent="Pivot/Camera/HUD"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="TextureProgress" type="TextureProgress" parent="Pivot/Camera/HUD/GameplayHud"]
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -80.0
+margin_left = 904.0
 margin_top = 20.0
-margin_right = -10.0
-margin_bottom = -20.0
+margin_right = 974.0
+margin_bottom = -19.0
 rounded = true
 fill_mode = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="Label" type="Label" parent="HUD"]
+[node name="Label" type="Label" parent="Pivot/Camera/HUD/GameplayHud"]
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -20.0
-margin_top = -14.0
-margin_right = 20.0
-text = "100"
+margin_left = 472.0
+margin_top = 546.0
+margin_right = 512.0
+margin_bottom = 560.0
+text = "0"
 align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Crosshair" type="Control" parent="Pivot/Camera/HUD/GameplayHud"]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 492.0
+margin_top = 280.0
+margin_right = 492.0
+margin_bottom = 280.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Bottom" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Left" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+rotation = 1.5708
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Top" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+rotation = 3.14159
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Right" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+rotation = 4.71239
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="WinHud" type="Control" parent="Pivot/Camera/HUD"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TitleLabel" type="Label" parent="Pivot/Camera/HUD/WinHud"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -20.0
+margin_right = 20.0
+margin_bottom = 14.0
+text = "You won!"
+
+[node name="ReplayButton" type="Button" parent="Pivot/Camera/HUD/WinHud"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -6.0
+margin_top = -20.0
+margin_right = 6.0
+text = "Replay"
+
+[node name="GrappleRayCast" type="RayCast" parent="Pivot/Camera"]
+enabled = true
+cast_to = Vector3( 0, 0, -10 )
+collide_with_areas = true
+script = ExtResource( 6 )
+
+[node name="DefaultTongueEnd" type="Position3D" parent="Pivot/Camera/GrappleRayCast"]
+
+[node name="Mesh" parent="." instance=ExtResource( 1 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
+
+[node name="TongueHelper" type="Spatial" parent="Mesh"]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -3.81997e-08, 0.497434, 0.436953 )
+script = ExtResource( 7 )
+
+[node name="Tongue" type="CSGCylinder" parent="Mesh/TongueHelper"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00081563, 5.96046e-08, -0.009413 )
+radius = 0.05
+material = SubResource( 2 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.318, 0 )
+shape = SubResource( 1 )
 
 [node name="Wobbler" type="Node" parent="."]
 script = ExtResource( 3 )
@@ -79,3 +179,6 @@ cast_to = Vector3( 0, -0.201, 0 )
 [node name="OnFloorDetectionCooldown" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
+
+[connection signal="pressed" from="Pivot/Camera/HUD/WinHud/ReplayButton" to="." method="_on_ReplayButton_pressed"]
+[connection signal="ready_to_register_collision" from="Mesh/TongueHelper" to="." method="_on_TongueHelper_ready_to_register_collision"]
