@@ -84,9 +84,11 @@ func _register_input(delta):
 	
 	if (Input.is_action_pressed("backward") and on_floor() and not Input.is_action_pressed("jump")):
 		_go_back(delta)
+		hud.get_node("CanvasLayer/ColorRect").fade_in_black_and_white()
 	
 	if (Input.is_action_pressed("forward") and on_floor() and not Input.is_action_pressed("jump")):
 		_go_forward(delta)
+		hud.get_node("CanvasLayer/ColorRect").fade_out_black_and_white()
 	
 	if Input.is_action_pressed("aim"):
 		camera.aim()
