@@ -25,28 +25,33 @@ var should_wobble := false
 onready var on_floor_detector: OnFloorDetector = $OnFloorDetector
 onready var on_floor_cooldown: Timer = $OnFloorDetectionCooldown
 
-onready var jump_power_ui = $Pivot/Camera/HUD/GameplayHud/Label
+onready var jump_power_ui = $PlayerCamera/Pivot/Camera/HUD/GameplayHud/Label
 
 onready var mesh := $Mesh
 
-onready var camera = $Pivot
+onready var camera = $PlayerCamera
 var tongue_collider = null
 
-onready var hud = $Pivot/Camera/HUD
+onready var hud = $PlayerCamera/Pivot/Camera/HUD
 
 onready var spawn = get_parent().get_node("Spawn")
 
 onready var tongue_helper = $Mesh/TongueHelper
 
-var has_won := false
+var game_over := false
 
 
 func _process(delta):
 	debug_draw()
 	should_wobble = false
 	
-	if not has_won:
-		_register_input(delta)
+	if camera.mesh_should_fade():
+		mesh.fade_mesh_out()
+	
+	if game_over:
+		return
+	
+	_register_input(delta)
 		
 	if (not on_floor_detector.is_colliding()):
 		velocity = _apply_gravity(velocity)
@@ -77,13 +82,13 @@ func _register_input(delta):
 	if (Input.is_action_pressed("right")):
 		_turn_right()
 	
-	if (Input.is_action_pressed("backward") and on_floor()):
+	if (Input.is_action_pressed("backward") and on_floor() and not Input.is_action_pressed("jump")):
 		_go_back(delta)
 	
-	if (Input.is_action_pressed("forward") and on_floor()):
+	if (Input.is_action_pressed("forward") and on_floor() and not Input.is_action_pressed("jump")):
 		_go_forward(delta)
 	
-	if Input.is_action_pressed("aim") and velocity == Vector3.ZERO:
+	if Input.is_action_pressed("aim"):
 		camera.aim()
 	else:
 		camera.deaim()
@@ -177,29 +182,55 @@ func debug_draw():
 	DebugDraw.set_text("Velocity", velocity)
 
 
+func init_hud(level_data: LevelData):
+	hud.initialize(level_data)
+
+
+func win():
+	game_over = true
+	hud.show_win()
+
+
+func lose():
+	game_over = true
+	hud.show_lost()
+
+
+# Signals:
+
 func _on_Area_body_entered(body):
 	translation = spawn.translation
 	rotation = spawn.rotation
 
 
-func win():
-	has_won = true
-	hud.show_win()
-
-
 func _on_TongueHelper_ready_to_register_collision():
 	if tongue_collider:
 		if tongue_collider is Fly:
-			get_parent().remove_child(tongue_collider)
-			
-			for node in get_tree().get_nodes_in_group("Flys"):
-				if node.is_inside_tree():
-					return
-			
-			win()
+			tongue_helper.eat_fly(tongue_collider)
 
 
 func _on_ReplayButton_pressed():
 	get_parent().reset()
+	tongue_helper.reset()
 	hud.reset()
-	has_won = false
+	game_over = false
+
+
+func _on_InMouthDetector_area_entered(area):
+	print(area)
+	if area is Fly:
+		get_parent().remove_child(area)
+		hud.increment_fly_count()
+		for node in get_tree().get_nodes_in_group(Strings.FLIES_GROUP_ID):
+			if node.is_inside_tree():
+				return
+	
+		win()
+
+
+func _on_Main_ready_with_data(data):
+	init_hud(data)
+
+
+func _on_Timer_timeout():
+	lose()

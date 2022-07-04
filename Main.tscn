@@ -3,7 +3,7 @@
 [ext_resource path="res://Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://GrayGridMaterial.tres" type="Material" id=2]
 [ext_resource path="res://Area.gd" type="Script" id=3]
-[ext_resource path="res://Fly.tscn" type="PackedScene" id=4]
+[ext_resource path="res://FlySpawner.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Main.gd" type="Script" id=5]
 
 [sub_resource type="SpatialMaterial" id=1]
@@ -22,6 +22,7 @@ extents = Vector3( 18.9792, 1.26016, 18.9677 )
 
 [node name="Main" type="Spatial"]
 script = ExtResource( 5 )
+time_to_complete_level = 15
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -17.6556, 3.07334, 10.9192 )
@@ -98,12 +99,22 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.96551, 0.269322, -6.26903 )
 shape = SubResource( 4 )
 
 [node name="Spawn" type="Position3D" parent="."]
-transform = Transform( 0.720273, 0, -0.693691, 0, 1, 0, 0.693691, 0, 0.720273, -15.9808, 2.47774, -12.0291 )
-
-[node name="Fly" parent="." instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -15.3209, 3.33786, -16.3395 )
+transform = Transform( 0.720273, 0, -0.693691, 0, 1, 0, 0.693691, 0, 0.720273, -17.9713, 2.47774, 3.85629 )
 
 [node name="Sun" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, -0.166579, 0.986028, 0, -0.986028, -0.166579, 0, 12.1686, 0 )
 
+[node name="FlySpawner" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -15.3577, 2.87015, 0 )
+
+[node name="FlySpawner2" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -14.1981, 3.13561, -5.24586 )
+
+[node name="FlySpawner3" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20.8539, 2.84805, 0 )
+
+[node name="FlySpawner4" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -19.2166, 2.27019, -6.42263 )
+
+[connection signal="ready_with_data" from="." to="Player" method="_on_Main_ready_with_data"]
 [connection signal="body_entered" from="Area" to="Player" method="_on_Area_body_entered"]
