@@ -51,7 +51,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Dialing Back"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://TitleScreen.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -59,6 +59,8 @@ config/icon="res://icon.png"
 DebugDraw="*res://addons/zylann.debug_draw/debug_draw.gd"
 Helpers="*res://Singletons/Helpers.gd"
 Strings="*res://Strings.gd"
+PlayerList="*res://PlayerList.gd"
+Ints="*res://Ints.gd"
 
 [input]
 

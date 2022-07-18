@@ -29,7 +29,8 @@ onready var jump_power_ui = $PlayerCamera/Pivot/Camera/HUD/GameplayHud/Label
 
 onready var mesh := $Mesh
 
-onready var camera = $PlayerCamera
+onready var camera_controller = $PlayerCamera
+onready var camera = $PlayerCamera/Pivot/Camera
 var tongue_collider = null
 
 onready var hud = $PlayerCamera/Pivot/Camera/HUD
@@ -41,26 +42,37 @@ onready var tongue_helper = $Mesh/TongueHelper
 var game_over := false
 
 
+func _ready():
+	rpc_config("set_position", 1)
+
+
 func _process(delta):
 	debug_draw()
 	should_wobble = false
 	
-	if camera.mesh_should_fade():
+	if camera_controller.mesh_should_fade():
 		mesh.fade_mesh_out()
 	
 	if game_over:
 		return
 	
-	_register_input(delta)
+	if is_network_master():
+		_register_input(delta)
 		
-	if (not on_floor_detector.is_colliding()):
-		velocity = _apply_gravity(velocity)
-	
-	velocity = move_and_slide(velocity, Vector3.UP, true)
-	if should_wobble:
-		wobbler.wobble()
-	else:
-		wobbler.dewobble()
+		if (not on_floor_detector.is_colliding()):
+			velocity = _apply_gravity(velocity)
+		
+		velocity = move_and_slide(velocity, Vector3.UP, true)
+		if should_wobble:
+			wobbler.wobble()
+		else:
+			wobbler.dewobble()
+		
+		rpc_unreliable("setPosition", translation)
+
+
+puppet func set_position(position):
+	translation = position
 
 
 func _register_input(delta):
@@ -91,11 +103,11 @@ func _register_input(delta):
 		hud.get_node("CanvasLayer/ColorRect").fade_out_black_and_white()
 	
 	if Input.is_action_pressed("aim"):
-		camera.aim()
+		camera_controller.aim()
 	else:
-		camera.deaim()
+		camera_controller.deaim()
 	
-	if (Input.is_action_just_pressed("fire") and camera.is_aiming) or tongue_helper.is_drawing_tongue:
+	if (Input.is_action_just_pressed("fire") and camera_controller.is_aiming) or tongue_helper.is_drawing_tongue:
 		_launch_tongue()
 	else:
 		tongue_helper.end_tongue_launch()
@@ -105,10 +117,10 @@ func _launch_tongue():
 	if not tongue_helper.has_hookpoint:
 		DebugDraw.set_text("setting is extending tongue to true", true)
 		
-		var hookpoint = camera.grapple_ray.default_end.global_transform.origin
-		if camera.grapple_ray.is_colliding():
-			tongue_collider = camera.grapple_ray.get_collider()
-			hookpoint = camera.grapple_ray.get_collision_point()
+		var hookpoint = camera_controller.grapple_ray.default_end.global_transform.origin
+		if camera_controller.grapple_ray.is_colliding():
+			tongue_collider = camera_controller.grapple_ray.get_collider()
+			hookpoint = camera_controller.grapple_ray.get_collision_point()
 		else:
 			tongue_collider = null
 			
@@ -182,6 +194,9 @@ func on_floor():
 
 func debug_draw():
 	DebugDraw.set_text("Velocity", velocity)
+	DebugDraw.set_text("Translation", translation)
+	DebugDraw.set_text("Network ID", get_tree().get_network_unique_id())
+	DebugDraw.set_text("Master ID", get_network_master())
 
 
 func init_hud(level_data: LevelData):
@@ -232,6 +247,8 @@ func _on_InMouthDetector_area_entered(area):
 
 func _on_Main_ready_with_data(data):
 	init_hud(data)
+	if is_network_master():
+		camera.current = true
 
 
 func _on_Timer_timeout():

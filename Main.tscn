@@ -1,6 +1,5 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
-[ext_resource path="res://Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://GrayGridMaterial.tres" type="Material" id=2]
 [ext_resource path="res://Area.gd" type="Script" id=3]
 [ext_resource path="res://FlySpawner.tscn" type="PackedScene" id=4]
@@ -46,9 +45,6 @@ extents = Vector3( 18.9792, 1.26016, 18.9677 )
 [node name="Main" type="Spatial"]
 script = ExtResource( 5 )
 time_to_complete_level = 15
-
-[node name="Player" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -17.6556, 3.07334, 10.9192 )
 
 [node name="CSGCombiner" type="CSGCombiner" parent="."]
 use_collision = true
@@ -138,6 +134,3 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20.8539, 2.84805, 0 )
 
 [node name="FlySpawner4" parent="." instance=ExtResource( 4 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -19.2166, 2.27019, -6.42263 )
-
-[connection signal="ready_with_data" from="." to="Player" method="_on_Main_ready_with_data"]
-[connection signal="body_entered" from="Area" to="Player" method="_on_Area_body_entered"]
