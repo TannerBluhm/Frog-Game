@@ -19,6 +19,8 @@ var FORWARDS_SPEED = 175
 export var TURNING_SENSITIVITY: float = 0.02
 export var mouse_sensitivity: float = 0.03
 
+onready var state_machine = $StateMachine
+
 onready var wobbler: Wobbler = $Wobbler
 var should_wobble := false
 
@@ -42,24 +44,20 @@ onready var tongue_helper = $Mesh/TongueHelper
 var game_over := false
 
 
-func _ready():
-	rpc_config("set_position", 1)
-
-
 func _process(delta):
-	debug_draw()
-	should_wobble = false
-	
-	if camera_controller.mesh_should_fade():
-		mesh.fade_mesh_out()
-	
-	if game_over:
-		return
-	
 	if is_network_master():
+		debug_draw()
+		should_wobble = false
+		
+		if camera_controller.mesh_should_fade():
+			mesh.fade_mesh_out()
+		
+		if game_over:
+			return
+		
 		_register_input(delta)
 		
-		if (not on_floor_detector.is_colliding()):
+		if (not on_floor_detector.is_on_floor()):
 			velocity = _apply_gravity(velocity)
 		
 		velocity = move_and_slide(velocity, Vector3.UP, true)
@@ -68,7 +66,9 @@ func _process(delta):
 		else:
 			wobbler.dewobble()
 		
-		rpc_unreliable("setPosition", translation)
+		_update_state()
+		
+		rpc_unreliable("set_position", translation)
 
 
 puppet func set_position(position):
@@ -111,6 +111,20 @@ func _register_input(delta):
 		_launch_tongue()
 	else:
 		tongue_helper.end_tongue_launch()
+
+
+func _update_state():
+	state_machine.update_state(self)
+	rpc_unreliable("remotely_update_state", state_machine.state.to_dict())
+
+
+remote func remotely_update_state(state_as_dict: Dictionary):
+	var state = state_machine.get_state_from_dict(state_as_dict)
+	translation = state.position
+	rotation = state.rotation
+	mesh.rotation = state.mesh_rotation
+	mesh.translation = state.mesh_translation_offset
+	tongue_helper.set_to_state(state)
 
 
 func _launch_tongue():
@@ -187,7 +201,7 @@ func _go_forward(delta):
 
 func on_floor():
 	if on_floor_cooldown.is_stopped():
-		return on_floor_detector.is_colliding()
+		return on_floor_detector.is_on_floor()
 	
 	return false
 
@@ -197,6 +211,10 @@ func debug_draw():
 	DebugDraw.set_text("Translation", translation)
 	DebugDraw.set_text("Network ID", get_tree().get_network_unique_id())
 	DebugDraw.set_text("Master ID", get_network_master())
+	DebugDraw.set_text("State Vel", state_machine.state.velocity)
+	DebugDraw.set_text("State Pos", state_machine.state.position)
+	DebugDraw.set_text("State Rot", state_machine.state.rotation)
+	DebugDraw.set_text("Action", state_machine.state.action)
 
 
 func init_hud(level_data: LevelData):

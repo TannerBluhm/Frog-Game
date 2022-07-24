@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Node",
+"class": "ActionState",
+"language": "GDScript",
+"path": "res://ActionState.gd"
+}, {
 "base": "Spatial",
 "class": "Fly",
 "language": "GDScript",
@@ -35,16 +40,35 @@ _global_script_classes=[ {
 "path": "res://OnFloorDetector.gd"
 }, {
 "base": "Node",
+"class": "State",
+"language": "GDScript",
+"path": "res://State.gd"
+}, {
+"base": "Node",
+"class": "StateMachine",
+"language": "GDScript",
+"path": "res://PlayerStateMachine.gd"
+}, {
+"base": "Spatial",
+"class": "TongueHelper",
+"language": "GDScript",
+"path": "res://TongueHelper.gd"
+}, {
+"base": "Node",
 "class": "Wobbler",
 "language": "GDScript",
 "path": "res://Wobbler.gd"
 } ]
 _global_script_class_icons={
+"ActionState": "",
 "Fly": "",
 "FlySpawner": "",
 "FrogPlayer": "",
 "LevelData": "",
 "OnFloorDetector": "",
+"State": "",
+"StateMachine": "",
+"TongueHelper": "",
 "Wobbler": ""
 }
 

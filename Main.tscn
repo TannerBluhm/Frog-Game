@@ -44,7 +44,7 @@ extents = Vector3( 18.9792, 1.26016, 18.9677 )
 
 [node name="Main" type="Spatial"]
 script = ExtResource( 5 )
-time_to_complete_level = 15
+time_to_complete_level = 999
 
 [node name="CSGCombiner" type="CSGCombiner" parent="."]
 use_collision = true

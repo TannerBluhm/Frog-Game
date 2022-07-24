@@ -9,7 +9,7 @@ func _ready():
 		child.enabled = enabled
 
 
-func is_colliding():
+func is_on_floor():
 	for child in get_children():
 		if child.is_colliding():
 			return true

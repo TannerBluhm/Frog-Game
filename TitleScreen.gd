@@ -1,6 +1,7 @@
-extends Control
+extends Node2D
 
 onready var title_screen := $TitleScreen
+onready var level_scene = preload("res://Main.tscn")
 
 func _ready():
 	get_tree().connect("network_peer_connected", self, "_player_connected")
@@ -43,5 +44,11 @@ func _on_JoinButton_pressed():
 	$TitleScreen/JoinButton.disabled = true
 	
 	var level = preload("res://Main.tscn").instance()
+	get_tree().get_root().add_child(level)
+	title_screen.hide()
+
+
+func _start_level(player) -> void:
+	var level = level_scene.instance()
 	get_tree().get_root().add_child(level)
 	title_screen.hide()

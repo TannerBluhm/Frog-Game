@@ -5,6 +5,7 @@ export var time_to_complete_level := 3000
 var level_data: LevelData
 
 var frog_player_scene = preload("res://Player.tscn")
+var players: Array = []
 
 signal ready_with_data(data)
 
@@ -23,11 +24,13 @@ func _ready():
 func spawn_players():
 	# Spawn this clients player
 	var client_network_id = get_tree().get_network_unique_id()
-	spawn_player(client_network_id)
+	var this_player = spawn_player(client_network_id)
+	players.append(this_player)
 	
 	# Spawn all of the other players
 	for player_id in PlayerList.other_players:
-		spawn_player(player_id)
+		var other_player = spawn_player(player_id)
+		players.append(other_player)
 
 
 func spawn_player(id):
@@ -36,12 +39,15 @@ func spawn_player(id):
 	player_instance.set_name(str(id))
 	player_instance.set_network_master(id)
 	player_instance.translation = $Spawn.translation
-#	player_instance.rotation = $Spawn.translation
+	player_instance.rotation = $Spawn.rotation
+	
+	return player_instance
 
 
 func reset():
-	$Player.translation = $Spawn.translation
-	$Player.rotation = $Spawn.rotation
+	for player in players:
+		player.translation = $Spawn.translation
+		player.rotation = $Spawn.rotation
 	
 	for fly_spawner in get_tree().get_nodes_in_group(Strings.FLY_SPAWNERS_GROUP_ID):
 		fly_spawner.spawn()

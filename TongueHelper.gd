@@ -1,5 +1,7 @@
 extends Spatial
 
+class_name TongueHelper
+
 signal ready_to_register_collision
 
 export var tongue_height_lerp_weight = 0.01
@@ -88,3 +90,10 @@ func attach_to_tongue(obj: Spatial) -> void:
 		obj.global_transform.origin = obj.global_transform.origin - positional_difference
 		
 		point_of_contact = end_of_tongue_position
+
+
+func set_to_state(state: State) -> void:
+	tongue.translation = state.tongue_translation
+	rotation = state.tongue_rotation
+	tongue.height = state.tongue_height
+	tongue.visible = state.tongue_is_visible
