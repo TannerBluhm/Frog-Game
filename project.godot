@@ -34,6 +34,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://LevelData.gd"
 }, {
+"base": "Node",
+"class": "NetworkObject",
+"language": "GDScript",
+"path": "res://NetworkObject.gd"
+}, {
 "base": "Spatial",
 "class": "OnFloorDetector",
 "language": "GDScript",
@@ -65,6 +70,7 @@ _global_script_class_icons={
 "FlySpawner": "",
 "FrogPlayer": "",
 "LevelData": "",
+"NetworkObject": "",
 "OnFloorDetector": "",
 "State": "",
 "StateMachine": "",
@@ -82,9 +88,9 @@ config/icon="res://icon.png"
 
 DebugDraw="*res://addons/zylann.debug_draw/debug_draw.gd"
 Helpers="*res://Singletons/Helpers.gd"
-Strings="*res://Strings.gd"
-PlayerList="*res://PlayerList.gd"
-Ints="*res://Ints.gd"
+Strings="*res://Singletons/Strings.gd"
+PlayerList="*res://Singletons/PlayerList.gd"
+Ints="*res://Singletons/Ints.gd"
 
 [input]
 

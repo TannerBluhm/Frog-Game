@@ -87,7 +87,10 @@ func attach_to_tongue(obj: Spatial) -> void:
 		point_of_contact = end_of_tongue_position
 	else:
 		var positional_difference = point_of_contact - end_of_tongue_position
-		obj.global_transform.origin = obj.global_transform.origin - positional_difference
+		
+		if obj.has_method("_get_global_position_updated_by_server"):
+			obj.rpc_unreliable("_get_global_position_updated_by_server", obj.global_transform.origin - positional_difference)
+			
 		
 		point_of_contact = end_of_tongue_position
 

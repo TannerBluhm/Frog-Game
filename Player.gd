@@ -44,35 +44,32 @@ onready var tongue_helper = $Mesh/TongueHelper
 var game_over := false
 
 
+func _ready():
+	_init_connections()
+
+
 func _process(delta):
 	if is_network_master():
 		debug_draw()
-		should_wobble = false
+		_handle_movement(delta)
 		
-		if camera_controller.mesh_should_fade():
-			mesh.fade_mesh_out()
-		
-		if game_over:
-			return
-		
-		_register_input(delta)
-		
-		if (not on_floor_detector.is_on_floor()):
-			velocity = _apply_gravity(velocity)
-		
-		velocity = move_and_slide(velocity, Vector3.UP, true)
-		if should_wobble:
-			wobbler.wobble()
-		else:
-			wobbler.dewobble()
+#		if camera_controller.mesh_should_fade():
+#			mesh.fade_mesh_out()
 		
 		_update_state()
-		
-		rpc_unreliable("set_position", translation)
 
 
-puppet func set_position(position):
-	translation = position
+func _handle_movement(delta) -> void:
+	should_wobble = false
+	
+	if game_over:
+		return
+	
+	should_wobble = false
+	_register_input(delta)
+	_handle_gravity()
+	wobbler.handle_wobble(should_wobble)
+	velocity = move_and_slide(velocity, Vector3.UP, true)
 
 
 func _register_input(delta):
@@ -118,7 +115,7 @@ func _update_state():
 	rpc_unreliable("remotely_update_state", state_machine.state.to_dict())
 
 
-remote func remotely_update_state(state_as_dict: Dictionary):
+puppet func remotely_update_state(state_as_dict: Dictionary):
 	var state = state_machine.get_state_from_dict(state_as_dict)
 	translation = state.position
 	rotation = state.rotation
@@ -141,6 +138,11 @@ func _launch_tongue():
 		tongue_helper.init_tongue_extension(hookpoint)
 	
 	tongue_helper.draw_tongue()
+
+
+func _handle_gravity() -> void:
+	if (not on_floor_detector.is_on_floor()):
+			velocity = _apply_gravity(velocity)
 
 
 func _apply_gravity(vec: Vector3) -> Vector3:
@@ -209,12 +211,13 @@ func on_floor():
 func debug_draw():
 	DebugDraw.set_text("Velocity", velocity)
 	DebugDraw.set_text("Translation", translation)
-	DebugDraw.set_text("Network ID", get_tree().get_network_unique_id())
-	DebugDraw.set_text("Master ID", get_network_master())
-	DebugDraw.set_text("State Vel", state_machine.state.velocity)
-	DebugDraw.set_text("State Pos", state_machine.state.position)
-	DebugDraw.set_text("State Rot", state_machine.state.rotation)
-	DebugDraw.set_text("Action", state_machine.state.action)
+#	DebugDraw.set_text("Network ID", get_tree().get_network_unique_id())
+#	DebugDraw.set_text("Master ID", get_network_master())
+#	DebugDraw.set_text("State Vel", state_machine.state.velocity)
+#	DebugDraw.set_text("State Pos", state_machine.state.position)
+#	DebugDraw.set_text("State Rot", state_machine.state.rotation)
+#	DebugDraw.set_text("Action", state_machine.state.action)
+	DebugDraw.set_text("Jump force", jump_force)
 
 
 func init_hud(level_data: LevelData):
@@ -233,9 +236,14 @@ func lose():
 
 # Signals:
 
-func _on_Area_body_entered(body):
-	translation = spawn.translation
-	rotation = spawn.rotation
+func _init_connections():
+	var hazards = get_tree().get_nodes_in_group(Strings.HAZARD_GROUP_ID)
+
+
+func _on_Hazard_body_entered(body):
+	if body == self:
+		translation = spawn.translation
+		rotation = spawn.rotation
 
 
 func _on_TongueHelper_ready_to_register_collision():
@@ -252,9 +260,8 @@ func _on_ReplayButton_pressed():
 
 
 func _on_InMouthDetector_area_entered(area):
-	print(area)
 	if area is Fly:
-		get_parent().remove_child(area)
+		area.rpc_unreliable("get_eaten")
 		hud.increment_fly_count()
 		for node in get_tree().get_nodes_in_group(Strings.FLIES_GROUP_ID):
 			if node.is_inside_tree():

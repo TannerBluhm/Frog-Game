@@ -105,15 +105,15 @@ height = 1.5
 depth = 37.5
 material = SubResource( 1 )
 
-[node name="Area" type="Area" parent="."]
+[node name="WaterHazard" type="Area" parent="."]
 script = ExtResource( 3 )
 
-[node name="MeshInstance" type="MeshInstance" parent="Area"]
+[node name="MeshInstance" type="MeshInstance" parent="WaterHazard"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6.25, 1.34601, -6.25 )
 mesh = SubResource( 3 )
 material/0 = null
 
-[node name="CollisionShape" type="CollisionShape" parent="Area"]
+[node name="CollisionShape" type="CollisionShape" parent="WaterHazard"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.96551, 0.269322, -6.26903 )
 shape = SubResource( 4 )
 

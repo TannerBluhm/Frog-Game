@@ -8,9 +8,10 @@ var frog_player_scene = preload("res://Player.tscn")
 var players: Array = []
 
 signal ready_with_data(data)
+signal player_added_to_tree(player)
 
 func _ready():
-	get_tree().connect("network_peer_connected", self, "_player_connected")
+	_init_connections()
 	
 	level_data = LevelData.new(time_to_complete_level)
 	
@@ -19,6 +20,11 @@ func _ready():
 		
 	emit_signal("ready_with_data", level_data)
 	spawn_players()
+
+
+func _init_connections():
+	get_tree().connect("network_peer_connected", self, "_player_connected")
+	_connect_hazards()
 
 
 func spawn_players():
@@ -41,7 +47,14 @@ func spawn_player(id):
 	player_instance.translation = $Spawn.translation
 	player_instance.rotation = $Spawn.rotation
 	
+	emit_signal("player_added_to_tree", player_instance)
 	return player_instance
+
+
+func _connect_hazards():
+	var hazards = get_tree().get_nodes_in_group(Strings.HAZARD_GROUP_ID)
+	for hazard in hazards:
+		connect("player_added_to_tree", hazard, "_on_player_added_to_tree")
 
 
 func reset():

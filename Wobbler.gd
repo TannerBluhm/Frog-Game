@@ -15,6 +15,14 @@ var WOBBLE_HEIGHT_OFFSET = 0.05
 
 var is_wobbling := false
 
+
+func handle_wobble(should_wobble: bool) -> void:
+	if should_wobble:
+		wobble()
+	else:
+		dewobble()
+
+
 func wobble():
 	if (player.on_floor()):
 		mesh.translation.y = lerp(mesh.translation.y, WOBBLE_HEIGHT_OFFSET, WOBBLE_LERP_WEIGHT)
