@@ -2,6 +2,7 @@ extends Control
 
 onready var fly_counter := $GameplayHud/FlyCounter
 onready var countdown := $GameplayHud/Countdown
+onready var crosshair := $GameplayHud/Crosshair
 
 var num_flies_eaten = 0
 
@@ -16,6 +17,14 @@ func initialize(level_data: LevelData) -> void:
 
 func _process(delta):
 	fly_counter.numerator.text = str(num_flies_eaten)
+
+
+func show_aiming_hud():
+	crosshair.visible = true
+
+
+func hide_aiming_hud():
+	crosshair.visible = false
 
 
 func set_total_flys(total: int) -> void:

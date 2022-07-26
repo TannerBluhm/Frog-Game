@@ -1,6 +1,8 @@
 extends Spatial
 
 onready var animation_player = $AnimationPlayer
+onready var tongue_origin = $TongueOrigin
+
 
 func fade_mesh_out() -> void:
 	pass

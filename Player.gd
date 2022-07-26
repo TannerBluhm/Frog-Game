@@ -27,25 +27,26 @@ var should_wobble := false
 onready var on_floor_detector: OnFloorDetector = $OnFloorDetector
 onready var on_floor_cooldown: Timer = $OnFloorDetectionCooldown
 
-onready var jump_power_ui = $PlayerCamera/Pivot/Camera/HUD/GameplayHud/Label
-
 onready var mesh := $Mesh
 
-onready var camera_controller = $PlayerCamera
-onready var camera = $PlayerCamera/Pivot/Camera
+onready var camera_controller = $PlayerCameraAndHud
+onready var camera = camera_controller.camera
+onready var jump_power_ui = camera_controller.jump_power_ui
 var tongue_collider = null
 
-onready var hud = $PlayerCamera/Pivot/Camera/HUD
+onready var hud = camera_controller.hud
 
 onready var spawn = get_parent().get_node("Spawn")
 
-onready var tongue_helper = $Mesh/TongueHelper
+onready var tongue_helper = $TongueHelper
 
 var game_over := false
 
 
 func _ready():
 	_init_connections()
+	if not is_network_master():
+		camera_controller.queue_free()
 
 
 func _process(delta):
@@ -101,8 +102,10 @@ func _register_input(delta):
 	
 	if Input.is_action_pressed("aim"):
 		camera_controller.aim()
+		hud.show_aiming_hud()
 	else:
 		camera_controller.deaim()
+		hud.hide_aiming_hud()
 	
 	if (Input.is_action_just_pressed("fire") and camera_controller.is_aiming) or tongue_helper.is_drawing_tongue:
 		_launch_tongue()
@@ -238,29 +241,32 @@ func lose():
 
 func _init_connections():
 	var hazards = get_tree().get_nodes_in_group(Strings.HAZARD_GROUP_ID)
+	if is_network_master():
+		camera_controller.init_connections_for_player(self)
 
 
 func _on_Hazard_body_entered(body):
-	if body == self:
-		translation = spawn.translation
-		rotation = spawn.rotation
+	if is_network_master() and body == self:
+			translation = spawn.translation
+			rotation = spawn.rotation
 
 
 func _on_TongueHelper_ready_to_register_collision():
-	if tongue_collider:
+	if tongue_collider and is_network_master():
 		if tongue_collider is Fly:
 			tongue_helper.eat_fly(tongue_collider)
 
 
 func _on_ReplayButton_pressed():
-	get_parent().reset()
-	tongue_helper.reset()
-	hud.reset()
-	game_over = false
+	if is_network_master():
+		get_parent().rpc_unreliable("reset")
+		tongue_helper.reset()
+		hud.reset()
+		game_over = false
 
 
 func _on_InMouthDetector_area_entered(area):
-	if area is Fly:
+	if area is Fly and is_network_master():
 		area.rpc_unreliable("get_eaten")
 		hud.increment_fly_count()
 		for node in get_tree().get_nodes_in_group(Strings.FLIES_GROUP_ID):
@@ -271,10 +277,11 @@ func _on_InMouthDetector_area_entered(area):
 
 
 func _on_Main_ready_with_data(data):
-	init_hud(data)
 	if is_network_master():
+		init_hud(data)
 		camera.current = true
 
 
 func _on_Timer_timeout():
-	lose()
+	if is_network_master():
+		lose()

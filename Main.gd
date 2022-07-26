@@ -41,9 +41,9 @@ func spawn_players():
 
 func spawn_player(id):
 	var player_instance = frog_player_scene.instance()
-	add_child(player_instance)
 	player_instance.set_name(str(id))
 	player_instance.set_network_master(id)
+	add_child(player_instance)
 	player_instance.translation = $Spawn.translation
 	player_instance.rotation = $Spawn.rotation
 	
@@ -57,7 +57,7 @@ func _connect_hazards():
 		connect("player_added_to_tree", hazard, "_on_player_added_to_tree")
 
 
-func reset():
+remotesync func reset():
 	for player in players:
 		player.translation = $Spawn.translation
 		player.rotation = $Spawn.rotation

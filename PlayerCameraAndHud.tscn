@@ -1,0 +1,253 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://GrappleRayCast.gd" type="Script" id=1]
+[ext_resource path="res://Countdown.gd" type="Script" id=2]
+[ext_resource path="res://HUD.gd" type="Script" id=3]
+[ext_resource path="res://ColorRect.gd" type="Script" id=4]
+[ext_resource path="res://Pivot.gd" type="Script" id=5]
+[ext_resource path="res://FlyCounter.gd" type="Script" id=6]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform float filter_amount : hint_range(0,1) = 1;
+
+void fragment() {
+	vec4 bg = texture(SCREEN_TEXTURE, SCREEN_UV);
+	float avg = (bg.r + bg.g + bg.b) /3f;
+	COLOR = vec4(avg, avg, avg, 1f) * filter_amount + ((1.0 - filter_amount) * bg);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/filter_amount = 0.0
+
+[node name="PlayerCameraAndHud" type="Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.692, -0.538 )
+script = ExtResource( 5 )
+
+[node name="Pivot" type="Spatial" parent="."]
+
+[node name="Camera" type="Camera" parent="Pivot"]
+transform = Transform( 1, 0, 0, 0, 0.985467, 0.169866, 0, -0.169866, 0.985467, 0, 0.607587, 2.37317 )
+
+[node name="HUD" type="Control" parent="Pivot/Camera"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GameplayHud" type="Control" parent="Pivot/Camera/HUD"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureProgress" type="TextureProgress" parent="Pivot/Camera/HUD/GameplayHud"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -75.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+rounded = true
+fill_mode = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Pivot/Camera/HUD/GameplayHud"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -20.0
+margin_top = -14.0
+margin_right = 20.0
+text = "0"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Crosshair" type="Control" parent="Pivot/Camera/HUD/GameplayHud"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Bottom" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Left" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+rotation = 1.5708
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Top" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+rotation = 3.14159
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Right" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/Crosshair"]
+rotation = 4.71239
+points = PoolVector2Array( 0, 20, 0, 50 )
+width = 4.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="FlyCounter" type="Control" parent="Pivot/Camera/HUD/GameplayHud"]
+size_flags_horizontal = 2
+size_flags_vertical = 2
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Numerator" type="Label" parent="Pivot/Camera/HUD/GameplayHud/FlyCounter"]
+margin_left = 20.7887
+margin_top = 23.3085
+margin_right = 37.7887
+margin_bottom = 42.3085
+text = "0"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Divider" type="Line2D" parent="Pivot/Camera/HUD/GameplayHud/FlyCounter"]
+position = Vector2( 75, 25 )
+points = PoolVector2Array( 0, 0, -50, 50 )
+width = 5.0
+default_color = Color( 1, 1, 1, 1 )
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="Denominator" type="Label" parent="Pivot/Camera/HUD/GameplayHud/FlyCounter"]
+margin_left = 62.996
+margin_top = 64.256
+margin_right = 79.996
+margin_bottom = 83.256
+text = "0"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Pivot/Camera/HUD/GameplayHud/FlyCounter"]
+margin_left = 105.833
+margin_top = 46.6171
+margin_right = 145.833
+margin_bottom = 60.6171
+text = "Flys"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Countdown" type="Control" parent="Pivot/Camera/HUD/GameplayHud"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -40.0
+margin_bottom = 40.0
+script = ExtResource( 2 )
+
+[node name="TimeLeft" type="Label" parent="Pivot/Camera/HUD/GameplayHud/Countdown"]
+margin_left = -21.0
+margin_right = 40.0
+margin_bottom = 49.0
+text = "00:00"
+align = 1
+valign = 1
+autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Timer" type="Timer" parent="Pivot/Camera/HUD/GameplayHud/Countdown"]
+one_shot = true
+
+[node name="WinHud" type="Control" parent="Pivot/Camera/HUD"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TitleLabel" type="Label" parent="Pivot/Camera/HUD/WinHud"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -20.0
+margin_right = 20.0
+margin_bottom = 14.0
+text = "You won!"
+
+[node name="ReplayButton" type="Button" parent="Pivot/Camera/HUD/WinHud"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -6.0
+margin_top = -20.0
+margin_right = 6.0
+text = "Replay"
+
+[node name="LostHud" type="Control" parent="Pivot/Camera/HUD"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TitleLabel" type="Label" parent="Pivot/Camera/HUD/LostHud"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -20.0
+margin_right = 20.0
+margin_bottom = 14.0
+text = "You lost :("
+
+[node name="ReplayButton" type="Button" parent="Pivot/Camera/HUD/LostHud"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -6.0
+margin_top = -20.0
+margin_right = 6.0
+text = "Try again?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Pivot/Camera/HUD"]
+
+[node name="ColorRect" type="ColorRect" parent="Pivot/Camera/HUD/CanvasLayer"]
+material = SubResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GrappleRayCast" type="RayCast" parent="Pivot/Camera"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.373 )
+enabled = true
+cast_to = Vector3( 0, 0, -8 )
+collide_with_areas = true
+script = ExtResource( 1 )
+
+[node name="DefaultTongueEnd" type="Position3D" parent="Pivot/Camera/GrappleRayCast"]
+
+[connection signal="pressed" from="Pivot/Camera/HUD/WinHud/ReplayButton" to="." method="_on_ReplayButton_pressed"]

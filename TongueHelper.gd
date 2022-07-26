@@ -18,6 +18,10 @@ var fly_being_eaten = null
 var point_of_contact = null
 
 
+func _process(delta):
+	global_transform.origin = get_parent().get_node("Mesh").tongue_origin.global_transform.origin
+
+
 func init_tongue_extension(hookpoint: Vector3) -> void:
 	self.hookpoint = hookpoint
 	has_hookpoint = true

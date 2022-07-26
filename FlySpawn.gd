@@ -8,7 +8,7 @@ func _ready():
 	add_to_group(Strings.FLY_SPAWNERS_GROUP_ID)
 
 
-func spawn() -> Fly:
+mastersync func spawn() -> Fly:
 	if not get_parent().get_children().has(fly):
 		get_parent().add_child(fly)
 	
