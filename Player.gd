@@ -240,7 +240,6 @@ func lose():
 # Signals:
 
 func _init_connections():
-	var hazards = get_tree().get_nodes_in_group(Strings.HAZARD_GROUP_ID)
 	if is_network_master():
 		camera_controller.init_connections_for_player(self)
 

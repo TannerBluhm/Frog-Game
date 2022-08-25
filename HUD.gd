@@ -15,7 +15,7 @@ func initialize(level_data: LevelData) -> void:
 	countdown.set_time(level_data.base_time_to_complete_level_in_seconds)
 
 
-func _process(delta):
+func _process(_delta):
 	fly_counter.numerator.text = str(num_flies_eaten)
 
 

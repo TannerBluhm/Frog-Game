@@ -14,8 +14,8 @@ uniform float filter_amount : hint_range(0,1) = 1;
 
 void fragment() {
 	vec4 bg = texture(SCREEN_TEXTURE, SCREEN_UV);
-	float avg = (bg.r + bg.g + bg.b) /3f;
-	COLOR = vec4(avg, avg, avg, 1f) * filter_amount + ((1.0 - filter_amount) * bg);
+	float avg = (bg.r + bg.g + bg.b) / 3.0;
+	COLOR = vec4(avg, avg, avg, 1.0) * filter_amount + ((1.0 - filter_amount) * bg);
 }"
 
 [sub_resource type="ShaderMaterial" id=2]
@@ -236,10 +236,8 @@ material = SubResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+color = Color( 1, 1, 1, 0 )
 script = ExtResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="GrappleRayCast" type="RayCast" parent="Pivot/Camera"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.373 )

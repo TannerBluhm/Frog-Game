@@ -3,7 +3,7 @@ extends Control
 onready var timer: Timer = $Timer
 onready var label = $TimeLeft
 
-func _process(delta):
+func _process(_delta):
 	label.text = str(int(timer.time_left))
 
 
